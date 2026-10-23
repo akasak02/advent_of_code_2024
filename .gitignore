@@ -1,0 +1,5 @@
+# Maven specific
+target/
+*.class
+*.jar
+*.log
