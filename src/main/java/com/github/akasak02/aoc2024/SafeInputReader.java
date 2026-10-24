@@ -5,16 +5,21 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.InvalidPathException;
-import java.util.stream.Stream;
 import java.util.Iterator;
 
-class SafeInputReader implements AutoCloseable, Iterable<String> {
+public class SafeInputReader implements AutoCloseable, Iterable<String> {
+    /*TODO: refactor 
+    I am not satisfied with my SafeInputReader implementation
+    it should present interface that is even more simple and abstracted out
+    as it stands it's not much better to using BufferedReader within Day's methods
+    for now I want to see how I will end up using it in my solutions
+    and refactor this code untill it fits the project */
     private BufferedReader inputReader;
     private Path filePath;
     //Constructors
-    SafeInputReader(String resourceName) {
+    public SafeInputReader(String resourceName) {
         try {
-            this.filePath = Path.of("resources", resourceName); // Clean way to combine paths
+            this.filePath = Path.of("resources", resourceName);
         } catch (InvalidPathException e) {
             System.err.println("Error: Path syntax is invalid for: " + resourceName);
             throw new RuntimeException("Invalid path syntax", e);
@@ -34,18 +39,24 @@ class SafeInputReader implements AutoCloseable, Iterable<String> {
         }
     }
 
-    SafeInputReader() {
+    public SafeInputReader() {
         this("test.txt");
     }
 
-    String readLine() throws IOException {
+    public String readLine(){
         if (this.inputReader == null) {
             return null;
         }
-        return this.inputReader.readLine();
+        try {
+            return this.inputReader.readLine();
+        } catch (IOException e) {
+            System.err.println("Error: couldn't read line from " + filePath.toAbsolutePath());
+            return null;
+        }
     }
     //Interable<String> interface
-    @Override Stream<String> iterator() {
+    @Override 
+    public Iterator<String> iterator() {
         return this.inputReader.lines().iterator();
     }
     //AutoClosable interface
