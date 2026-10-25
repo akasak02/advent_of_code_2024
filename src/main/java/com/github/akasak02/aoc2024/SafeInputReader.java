@@ -5,7 +5,9 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.InvalidPathException;
+import java.util.ArrayList;
 import java.util.Iterator;
+import java.util.List;
 
 public class SafeInputReader implements AutoCloseable, Iterable<String> {
     /*TODO: refactor 
@@ -54,6 +56,14 @@ public class SafeInputReader implements AutoCloseable, Iterable<String> {
             return null;
         }
     }
+
+    public List<String> getInput() {
+        List<String> lines = new ArrayList<>();
+        String line;
+        while((line = this.readLine()) != null)
+            lines.add(line);
+        return lines;
+    } 
     //Interable<String> interface
     @Override 
     public Iterator<String> iterator() {

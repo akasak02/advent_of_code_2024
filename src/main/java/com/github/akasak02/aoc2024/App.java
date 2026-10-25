@@ -9,7 +9,9 @@ public class App
         *  for now writing out each and every solution will have to wait untill I have more free time
         */
         System.out.println("Advent of Code 2024 solutions");
-        System.out.println(Day1.solution1());
-        System.out.println(Day1.solution2());
+        System.out.println("result of day 1 pt 1: %s".formatted(Day1.solution1()));
+        System.out.println("result of day 1 pt 2: %s".formatted(Day1.solution2()));
+        System.out.println("result of day 2 pt 1: %s".formatted(Day2.solution1()));
+        System.out.println("result of day 2 pt 2: %s".formatted(Day2.solution2()));
     }
 }
