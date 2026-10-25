@@ -30,7 +30,7 @@ public final class Day1 extends DaySolution {
                 }
             );
         } else {
-            throw new NullPointerException("Error: input data is null");
+            throw new NullPointerException("Error: input data evaluated to nullptr");
         }
         return result; 
     } 
