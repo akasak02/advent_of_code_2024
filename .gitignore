@@ -4,3 +4,9 @@ target/
 *.jar
 *.log
 test/
+
+#directory containing input data
+resources/
+
+#other
+.github/

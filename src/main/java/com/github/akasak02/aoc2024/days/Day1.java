@@ -5,7 +5,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.IntStream;
 import java.util.HashMap;
-import com.github.akasak02.aoc2024.SafeInputReader;
 
 public final class Day1 extends DaySolution {
     private Day1() {
@@ -15,13 +14,7 @@ public final class Day1 extends DaySolution {
     
     private static LeftRight historianLists() {
         LeftRight result = new LeftRight(new ArrayList<>(), new ArrayList<>());
-        List<String> lines = null;
-        //read input
-        try(SafeInputReader input = new SafeInputReader("input1.txt")) {
-            lines = input.getInput();
-        } catch (Exception e) {
-            System.err.println("Day 1: exception during attempt on file reading");
-        }
+        List<String> lines = inputList("input1.txt");
         if(lines != null) {
             lines.forEach(ln -> {
                     String[] tmp = ln.trim().split("\s+");
