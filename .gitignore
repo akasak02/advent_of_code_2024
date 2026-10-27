@@ -5,8 +5,6 @@ target/
 *.log
 test/
 
-#directory containing input data
-resources/
-
 #other
 .github/
+test*

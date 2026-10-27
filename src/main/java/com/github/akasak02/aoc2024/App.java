@@ -13,5 +13,7 @@ public class App
         System.out.println("result of day 1 pt 2: %s".formatted(Day1.solution2()));
         System.out.println("result of day 2 pt 1: %s".formatted(Day2.solution1()));
         System.out.println("result of day 2 pt 2: %s".formatted(Day2.solution2()));
+        System.out.println("result of day 3 pt 1: %s".formatted(Day3.solution1()));
+        System.out.println("result of day 3 pt 2: %s".formatted(Day3.solution2()));
     }
 }

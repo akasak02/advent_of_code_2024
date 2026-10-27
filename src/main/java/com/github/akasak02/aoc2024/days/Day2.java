@@ -5,8 +5,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Stack;
 
-import javax.management.RuntimeErrorException;
-
 public final class Day2 extends DaySolution{
     private Day2(){
         super();
@@ -80,12 +78,9 @@ public final class Day2 extends DaySolution{
                     upperBound = 3;
                     lowerBound = 1;
                     break;
-                case Sign.NEGATIVE:
+                default:
                     upperBound = -1;
                     lowerBound = -3;
-                    break;
-                default:
-                    throw new RuntimeException("Error: faulty input data or case too complex to handle");
             }
             if(deltas.get(idx) > upperBound || deltas.get(idx) < lowerBound)
                 return idx;
@@ -93,11 +88,27 @@ public final class Day2 extends DaySolution{
         return -1;
     }
 
-    private static List<Integer> recordDampener(List<Integer> original, int problemIdx) {
+    private static List<Integer> repoertDampener(List<Integer> original, int problemIdx) {
         List<Integer> dampener = new ArrayList<>(original);
-        //important, in this context -1 doesn't mean there was no problem at any index
-        //that condition is already checked for before calling this method
-        //in this context -1 is problem at index 0 assuming the problematic number is one before delta
+        /* In order for Day2.isSafe to process tolerance greater than 1, 
+        * Day2.repoertDampener method must handle more robust delta masking
+        * as it stands it will sum two adjacent deltas and override both with the sum
+        * simulating skiping one read from report
+        * this logic fails if tolerance >=2 for two main reasons:
+        * -if sum still produces bad result now it is duplicated in the table
+        * -if whole blocks of adjacant numbers from report are to be ignored new common value should be propagated across all coresponging deltas
+        * To stop this information loss and deformation:
+        * List<Integer> dampener should be constructed based on full report
+        * and set of indecies to ignore, not a single problemIdx value
+        * 
+        * advent of code doesn't require tolerance greater than 1 and also
+        * as tolerance approaches report length the problem degenerates into
+        * a variation of knapsack problem which is NP-complete anyways so this code was never meant to
+        * process tolerance greater than a small fraction of repoert length, 
+        * for instance my implementation of voting on delta sign is a heuristic not applicable for big tolerance
+        * that being said I do want to implement this expansion and I leave it as:
+        * TODO: implement handling the tolerance greater than 1
+        */
         if(problemIdx == -1)
             dampener = dampener.subList(1,dampener.size());
         else if(problemIdx == original.size() - 1)
@@ -111,14 +122,13 @@ public final class Day2 extends DaySolution{
     }
 
     private static boolean isSafe(List<Integer> report, int tolerance) {
-        //for each level of tolerance if problem is hit I will have to mask the problematic list element
-        
+        if(tolerance > 1 )
+            throw new UnsupportedOperationException("To run this method for tolerance >1 Day2.repoertDampener must support more robust masking");
         List<Integer> deltas = new ArrayList<>(report.size()-1);
         for(int idx = 1; idx < report.size(); idx++) {
             deltas.add(report.get(idx-1) - report.get(idx));
         }
         Sign expectedSign = checkMajoritySign(deltas);
-
         Stack<DampenedReport> toCheck = new Stack<>();
         toCheck.push(new DampenedReport(deltas, tolerance));
         DampenedReport current;
@@ -134,12 +144,12 @@ public final class Day2 extends DaySolution{
                 continue;
             toCheck.push( //problematic number coud be the one before delta (less likely lower in stack)
                 new DampenedReport(
-                    recordDampener(current.dampenedDelta, problemIdx-1),
+                    repoertDampener(current.dampenedDelta, problemIdx-1),
                     tolerance - 1)
             );
             toCheck.push(
                 new DampenedReport( //problematic number coud be the one after delta (more likely, will be poped first)
-                    recordDampener(current.dampenedDelta, problemIdx),
+                    repoertDampener(current.dampenedDelta, problemIdx),
                     tolerance - 1)
             );
             
