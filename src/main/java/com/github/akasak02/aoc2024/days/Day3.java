@@ -1,6 +1,5 @@
 package com.github.akasak02.aoc2024.days;
 
-import java.io.BufferedReader;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -10,15 +9,8 @@ import java.util.regex.Matcher;
 import java.util.function.BinaryOperator;
 
 public class Day3 extends DaySolution {
-    private record Range(int idxBegin, int idxEnd) {
-        public boolean inRange(int idx) {
-            return (idx >= idxBegin && idx < idxEnd);
-        }
-        @Override
-        public String toString(){
-            return "[ %d ; %d ]".formatted(this.idxBegin, this.idxEnd);
-        }
-    }
+    private record Range(int idxBegin, int idxEnd) { }
+
     private static String cleanMemory(String corrupted, Pattern instruction) {
         Matcher matcher = instruction.matcher(corrupted);
         StringBuilder clean = new StringBuilder();
