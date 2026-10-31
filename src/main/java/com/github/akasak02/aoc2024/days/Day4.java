@@ -107,7 +107,8 @@ public class Day4 extends DaySolution {
         wordsOnDiagonal = wordsOnDiagonal ||  (word.charAt(0) == word.charAt(word.length()-1));
         boolean containRightLetters = true;
         for(int cIdx : cornerIndecies) {
-            containRightLetters = containRightLetters && ( inSquare[cIdx] == word.charAt(0) || inSquare[cIdx] == word.charAt(word.length()-1));
+            containRightLetters = containRightLetters 
+            && ( inSquare[cIdx] == word.charAt(0) || inSquare[cIdx] == word.charAt(word.length()-1));
         }
         return middleIsRight && wordsOnDiagonal && containRightLetters;
     }

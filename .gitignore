@@ -9,3 +9,4 @@ test/
 .github/
 test*
 .vscode/
+.bin/
