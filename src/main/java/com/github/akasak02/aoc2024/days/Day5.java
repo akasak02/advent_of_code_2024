@@ -35,7 +35,11 @@ public class Day5 extends DaySolution {
                 .toList()
             );
         }
-
+        /* I underestimated the data size - solution as it works for smaller problems
+        * but run out of heap memory for sets as large as actual data
+        * [todo]: revise OrderGraph.calcPathLenghts() to handle big data better
+        * graph should be a directed acyclical graph so I suppose there is some optimisation to make
+         */
         private List<Pair> calcPathLengths(List<Integer> toOrder) {
             List<Pair> pathLens = new ArrayList<>(toOrder.size());
             Map<Integer,Integer> lengths = new HashMap<>();
@@ -50,9 +54,9 @@ public class Day5 extends DaySolution {
                 if(current.second <= lengths.get(current.first))
                     continue;
                 lengths.put(current.first, current.second);
-                System.out.println("[%d - %d]".formatted(current.first, current.second));
                 for(Integer child : this.edges.get(current.first)) {
-                    toTraverse.push(new Pair(child, current.second + 1));
+                    if(lengths.get(current.first) <= current.second)
+                        toTraverse.push(new Pair(child, current.second + 1));
                 }
             }
             for(Integer entry : toOrder) {
@@ -71,8 +75,6 @@ public class Day5 extends DaySolution {
             }
             //step 2 for each node I calculate the longest possible path to reach it from root (virtual element before leftmost one)
             List<Pair> paths = calcPathLengths(heuristicReverseOrder.stream().map(Pair::first).toList());
-            System.out.println(paths.stream().map(Pair::first).toList());
-            System.out.println(paths.stream().map(Pair::second).toList());
             //step 3 sorting entries by path lengths, if two entries get the same value the order doesn't matter 
             //...because they shoud be on separate paths anyways, so ordering them is impossible = virtually equal
             Collections.sort(paths, Comparator.comparing(Pair::second));
@@ -82,17 +84,37 @@ public class Day5 extends DaySolution {
         }
     }
 
+    private static boolean inRightOrder(List<Integer> toCheck, List<Integer> order) {
+        int idxInOrder = -1;
+        int nextIdx;
+        for(int element : toCheck) {
+            nextIdx = order.indexOf(element);
+            if(nextIdx < idxInOrder)
+                return false;
+            idxInOrder = nextIdx;
+        }
+        return true;
+    }
 
 
     public static String solution1() {
-        List<String> printerData = DaySolution.inputList("testinput.txt");
+        List<String> printerData = DaySolution.inputList("input5.txt");
         List<String> rules = printerData.subList(0, printerData.indexOf(""));
-        List<String> toPrint = printerData.subList(printerData.indexOf("") + 1, printerData.size());
+        List<List<Integer>> toPrint = printerData.subList(printerData.indexOf("") + 1, printerData.size())
+            .stream()
+            .map(
+                s -> Arrays.stream(s.split(","))
+                    .map(Integer::parseInt)
+                    .toList()
+            ).toList();
         OrderGraph instance = new OrderGraph(rules);
         List<Integer> orderedPages = instance.orderedEntries();
-        //[todo]: take each series from toPrint and check whether they are in the same order as equivalent elemnts in orderedPages
-        //...if so add the middle element to the result, else skip
-        System.out.println(orderedPages);
-        return DaySolution.solution1();
+        int sum = 0;
+        for(List<Integer> pages : toPrint) {
+            if(inRightOrder(pages, orderedPages)) {
+                sum += pages.get(pages.size() / 2);
+            }
+        }
+        return "calcPathLengths() need to be revised"/*String.valueOf(sum)*/;
     }
 }
