@@ -19,5 +19,7 @@ public class App
         System.out.println("result of day 4 pt 2: %s".formatted(Day4.solution2()));
         System.out.println("result of day 5 pt 1: %s".formatted(Day5.solution1()));
         System.out.println("result of day 5 pt 2: %s".formatted(Day5.solution2()));
+        System.out.println("result of day 6 pt 1: %s".formatted(Day6.solution1()));
+        System.out.println("result of day 6 pt 2: %s".formatted(Day6.solution2()));
     }
 }
