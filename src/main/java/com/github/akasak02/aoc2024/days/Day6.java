@@ -1,13 +1,31 @@
 package com.github.akasak02.aoc2024.days;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.stream.IntStream;
 
 public class Day6 extends DaySolution {
+    private static record MoveRegister(Coord position, DirWrapper dir) {
+        @Override
+        public boolean equals(Object o) {
+            if(this == o)
+                return true;
+            if(this == null || this.getClass() != o.getClass())
+                return false;
+            MoveRegister mr = (MoveRegister)o;
+            return (
+                this.position.y == mr.position.y 
+                && this.position.x == mr.position.x 
+                && this.dir.direction == mr.dir.direction
+            );
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(this.position.y, this.position.x, this.dir.direction.ordinal());
+        }
+    }
 
     private static class Coord {
 
@@ -16,6 +34,11 @@ public class Day6 extends DaySolution {
         Coord(int y, int x) {
             this.y = y;
             this.x = x;
+        }
+
+        Coord(Coord other) {
+            this.x = other.x;
+            this.y = other.y;
         }
 
         public void move(int dy, int dx) {
@@ -69,6 +92,14 @@ public class Day6 extends DaySolution {
         }
     }
 
+    private static class DirWrapper {
+        private Direction direction;
+
+        DirWrapper(Direction dir) {
+            this.direction = dir;
+        }
+    }
+
     private static Set<Coord> getObstaclePosition(List<String> grid) {
 
         Set<Coord> blocked = new HashSet<>();
@@ -94,50 +125,84 @@ public class Day6 extends DaySolution {
         throw new RuntimeException("Faulty input data has no starting position for the guard");
     }
 
-    private static long countSteps(Coord guard, Set<Coord> obstacles, Direction dir, int yMax, int xMax) {
-        boolean[][] visited = new boolean[yMax][xMax];
-        for(boolean[] row : visited) {
-            Arrays.fill(row, false);
-        }
+    private static long countSteps(List<String> grid) {
+        Set<Coord> uniq = uniqSteps(grid);
+        return uniq.size();
+    }
+
+    private static Set<Coord> uniqSteps(List<String> grid) {
+        int yMax = grid.size(), xMax = grid.get(0).length();
+        Set<Coord> obstacles = getObstaclePosition(grid);
+        Coord guard = startingPosition(grid);
+        Direction dir = Direction.NORTH;
+        Set<Coord> uniqSteps = new HashSet<>();
 
         while(!guard.outOfBounds(yMax, xMax)) {
 
-            visited[guard.y][guard.x] = true;
+            uniqSteps.add(new Coord(guard.y, guard.x));
 
             dir.nextStep(guard);
 
-            if(obstacles.contains(guard)) {
+            while(obstacles.contains(guard)) {
                 dir.stepBack(guard);
                 dir = dir.rotate();
                 dir.nextStep(guard);
             }
-            // System.out.println("(%d,%d)".formatted(guard.y,guard.x));
         }
 
-        long stepCount = 0L;
-        for(int yIdx = 0; yIdx < yMax; yIdx++) {
-            for(int xIdx = 0; xIdx < xMax; xIdx++) {
-                stepCount += (visited[yIdx][xIdx]) ? 1 : 0;
-            }
-        }
-        return stepCount;
+        return uniqSteps;
     }
 
-    private static long routeLength(List<String> grid) {
-        int hight = grid.size(), width = grid.get(0).length();
+    private static boolean hasCycle(Coord position, Direction dir, Set<Coord> obstacles, int yMax, int xMax) {
+        Set<MoveRegister> visited = new HashSet<>();
+        MoveRegister simulatedGuard = new MoveRegister(new Coord(position), new DirWrapper(dir));
+
+        while(!simulatedGuard.position.outOfBounds(yMax, xMax)) {
+
+            if(visited.contains(simulatedGuard))
+                return true;
+            visited.add(new MoveRegister(new Coord(simulatedGuard.position),new DirWrapper(simulatedGuard.dir.direction)));
+
+            simulatedGuard.dir.direction.nextStep(simulatedGuard.position);
+
+            while(obstacles.contains(simulatedGuard.position)) {
+                simulatedGuard.dir.direction.stepBack(simulatedGuard.position);
+                simulatedGuard.dir.direction = simulatedGuard.dir.direction.rotate();
+                simulatedGuard.dir.direction.nextStep(simulatedGuard.position);
+            }
+            
+        }
+
+        return false;
+    }
+
+    private static long countCycles(List<String> grid) {
+        Set<Coord> uniq = uniqSteps(grid);
         Set<Coord> obstacles = getObstaclePosition(grid);
-        Coord guard = startingPosition(grid);
-        return countSteps(guard, obstacles, Direction.NORTH, hight, width);
+        Coord start = startingPosition(grid);
+
+        uniq.remove(start);
+        long cycleCounter = 0;
+        for(Coord possibleObstacle : uniq) {
+            if(possibleObstacle.equals(start))
+                continue;
+            obstacles.add(possibleObstacle);
+            if(hasCycle(start,Direction.NORTH, obstacles, grid.size(), grid.get(0).length()))
+                cycleCounter++;
+            obstacles.remove(possibleObstacle);
+        }
+        return cycleCounter;
     }
 
     public static String solution1() {
 
         List<String> grid = DaySolution.inputList("input6.txt");
 
-        return String.valueOf(routeLength(grid));
+        return String.valueOf(countSteps(grid));
     }
-    
+
     public static String solution2() {
-        return DaySolution.solution2();
+        List<String> grid = DaySolution.inputList("input6.txt");
+        return String.valueOf(countCycles(grid));
     }
 }
